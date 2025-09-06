@@ -1,1 +1,10 @@
-<h1>Hello world!</h1>
+<br>
+<h1 style="font-weight: normal; font-size: 36px; text-align: center;">Hello World!</h1>
+<hr>
+{% for card in cards %}
+	<br></br>
+	<div style="width: 80%; border-style: dashed; border-color: gray; margin: auto; text-align: center;">
+		<h2 style="font-weight: bold">{{ card.question }}</h2>
+		<h3 style="font-weight: normal; font-size: 22px">{{ card.answer }}</h3>
+	</div>
+{% endfor %}

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from fastapi.responses import HTMLResponse
+from random import choice
 
 templates = Jinja2Templates(directory="templates")
 app = FastAPI()
@@ -16,19 +17,15 @@ cards = [
         Card(id = 1, question = "What is your quest?", answer = "To seek the Holy Grail!"),
         Card(id = 2, question = "What is your favorite color?", answer = "Green!"),
         Card(id = 3, question = "What is 2^2^2", answer = "16"),
+        Card(id = 4, question = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a gopher onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! But wait! There's an endangered species of beetle on the other track! What should you do?", answer = "Do nothing! That species of beetle is crucial to the ecosystem it is in! If you jeopardize its safety then the entire ecosystem could collapse!"),
+        Card(id = 5, question = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a train stop onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! What should you do?", answer = "Do nothing! The train stop was set up to prevent the out of control trolley car from getting into a potentially dangerous accident!"),
         ]
-
-#items_list = ["apple", "orange", "key lime"]
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request:Request):
     return templates.TemplateResponse(
-        request=request, name="index.html"
+        request=request, name="index.html", context={"cards": cards}
     )
-
-#@app.get("/items")
-#async def items():
-#    return items_list
 
 @app.get("/cards")
 async def getCard(q:str = ""):
@@ -49,3 +46,13 @@ async def getCardById(card_id:int):
 async def addCard(card:Card):
     cards.append(card)
     return cards
+    
+@app.get("/play", response_class=HTMLResponse)
+async def play(request:Request):
+    return templates.TemplateResponse(
+        request=request, name="play.html", context={"card": getRandomCard()}
+    )
+
+#helper functions
+def getRandomCard():
+    return choice(cards)
