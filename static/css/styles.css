@@ -1,0 +1,15 @@
+.title {
+	font-weight: normal;
+	font-size: 36px;
+	text-align: center;
+}
+
+.button {
+	margin: auto;
+	display: flex;
+	justify-content: center;
+}
+
+.button button {
+	font-size: 28px
+}

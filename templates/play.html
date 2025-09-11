@@ -1,20 +1,25 @@
+<head>
+	<link href="{{url_for('static', path='/css/styles.css')}}" rel="stylesheet">
+	<link href="{{url_for('static', path='/css/cards.css')}}" rel="stylesheet">
+	<script> src="{{url_for('static', path='/scripts/sites.js')}}"</script>
+</head>
 <br>
-<h1 style="font-weight: normal; font-size: 36px; text-align: center;">Hello Player!</h1>
+<h1 class="title">Hello Player!</h1>
 <hr>
 <br>
-<div style="margin: auto; display: flex; justify-content: center;">
-<button style="font-size: 28px" OnClick={location.reload();}>Get Another Card</button>
+<div class="button">
+	<button OnClick={location.reload();}>Get Another Card</button>
 </div>
 <br>
-<br></br>
-<div style="width: 80%; border-style: dashed; border-color: gray; margin: auto; text-align: center;">
-	<h2 style="font-weight: bold">{{ card.question }}</h2>
-	<h3 style="font-weight: normal; font-size: 22px">{{ card.answer }}</h3>
+<br>
+<div class="card">
+	<h2>{{ card.question }}</h2>
+	<h3>{{ card.answer }}</h3>
 </div>
 <br>
 <hr>
 <br>
-<div style="margin: auto; display: flex; justify-content: center;">
-<button style="font-size: 28px" OnClick={location.href="../"}>Home</button>
+<div class="button">
+	<button OnClick={location.href="../"}>Home</button>
 </div>
 <br>

@@ -1,17 +1,24 @@
+<head>
+	<link href="{{url_for('static', path='/css/styles.css')}}" rel="stylesheet">
+	<link href="{{url_for('static', path='/css/cards.css')}}" rel="stylesheet">
+	<script> src="{{url_for('static', path='/scripts/sites.js')}}"</script>
+</head>
 <br>
-<h1 style="font-weight: normal; font-size: 36px; text-align: center;">Hello World!</h1>
+<h1 class="title">Hello World!</h1>
 <hr>
 {% for card in cards %}
-	<br></br>
-	<div style="width: 80%; border-style: dashed; border-color: gray; margin: auto; text-align: center;">
-		<h2 style="font-weight: bold">{{ card.question }}</h2>
-		<h3 style="font-weight: normal; font-size: 22px">{{ card.answer }}</h3>
-	</div>
+	<br>
+	<a href="{{url_for('get_card', card_id=card.id)}}">
+		<div class="card">
+			<h2>{{ card.question }}</h2>
+			<h3>{{ card.answer }}</h3>
+		</div>
+	</a>
 {% endfor %}
 <br>
 <hr>
 <br>
-<div style="margin: auto; display: flex; justify-content: center;">
-<button style="font-size: 28px" OnClick={location.href="/play"}>Play</button>
+<div class="button">
+	<button OnClick={location.href="/play"}>Play</button>
 </div>
 <br>
