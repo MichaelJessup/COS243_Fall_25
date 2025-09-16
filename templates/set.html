@@ -7,15 +7,16 @@
 	<br>
 	<h1 class="title">Hello World!</h1>
 	<hr>
-	{% for user in users %}
+	<br>
+	<h2>SET: {{ name }}</h2>
+	{% for card in cards %}
 		<br>
-		<div>
-			<h2>{{ user.name }}</h2>
-			<br>
-			<h3>{{ user.email }}</h3>
-		</div>
-		<br>
+		<a href="{{ url_for('get_card', card_id=card.id) }}">
+			{% import "macros/card.html" as card_macro %}
+				{{ card_macro.card(card) }}
+		</a>
 	{% endfor %}
+	<br>
 	<br>
 	<hr>
 	<br>

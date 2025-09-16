@@ -4,22 +4,18 @@
 	{{ super() }}
 {% endblock %}
 {% block content %}
-<br>
-<h1 class="title">Hello Player!</h1>
-<hr>
-<br>
-<div class="button">
-	<button OnClick={location.reload();}>Get Another Card</button>
-</div>
-<br>
-<br>
-{% import "macros/card.html" as card_macro %}
-	{{ card_macro.card(card) }}
-<br>
-<hr>
-<br>
-<div class="button">
-	<button OnClick={location.href="../"}>Home</button>
-</div>
-<br>
+	<br>
+	<h1 class="title">Hello Player!</h1>
+	<hr>
+	<br>
+	<div class="button">
+		<button OnClick={location.reload();}>Get Another Card</button>
+	</div>
+	<br>
+	<br>
+	{% import "macros/card.html" as card_macro %}
+		{{ card_macro.card(card) }}
+	<br>
+	<hr>
+	<br>
 {% endblock %}

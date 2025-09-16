@@ -4,28 +4,22 @@
 	{{ super() }}
 {% endblock %}
 {% block content %}
-<br>
-<h1 class="title">Hello World!</h1>
-<hr>
-{% for set in sets %}
 	<br>
-	<h2>SET: {{ set.id }}</h2>
-	{% for card in set.cards %}
+	<h1 class="title">Hello World!</h1>
+	<hr>
+	{% for set in sets %}
 		<br>
-		<a href="{{url_for('get_card', card_id=card.id)}}">
-			<div class="card">
-				<h2>{{ card.question }}</h2>
-				<h3>{{ card.answer }}</h3>
-			</div>
-		</a>
+		<a href="{{ url_for('get_set', set_id=set.id) }}">SET: {{ set.name }}</a>
+		{% for card in set.cards %}
+			<br>
+			<a href="{{ url_for('get_card', card_id=card.id) }}">
+				{% import "macros/card.html" as card_macro %}
+					{{ card_macro.card(card) }}
+			</a>
+		{% endfor %}
+		<br>
 	{% endfor %}
 	<br>
-{% endfor %}
-<br>
-<hr>
-<br>
-<div class="button">
-	<button OnClick={location.href="../"}>Home</button>
-</div>
-<br>
+	<hr>
+	<br>
 {% endblock %}

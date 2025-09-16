@@ -4,10 +4,11 @@ from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import Field, SQLModel, Relationship, select
+from sqlmodel import Field, Session, SQLModel, Relationship, select
 from contextlib import asynccontextmanager
-from db.session import create_db_and_tables, SessionDep
+from db.session import create_db_and_tables, SessionDep, engine
 from random import choice
+import json
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,8 +18,6 @@ async def lifespan(app: FastAPI):
 templates = Jinja2Templates(directory="templates")
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-session = SessionDep
 
 class Set(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -68,10 +67,11 @@ async def getCard(q:str = ""):
 
 @app.get("/sets")
 async def getSets(request:Request):
-    sets = session.exec(select(Set).order_by(Set.name)).all()
-    return templates.TemplateResponse(
-        request=request, name="sets.html", context={"sets": sets}
-    )
+    with Session(engine) as session:
+        sets = session.exec(select(Set).order_by(Set.name)).all()
+        return templates.TemplateResponse(
+            request=request, name="sets.html", context={"sets": sets}
+        )
 
 @app.get("/users")
 async def getUsers(request:Request):
@@ -89,6 +89,14 @@ async def getCardById(request:Request, card_id:int):
             )
     return None
 
+@app.get("/sets/{set_id}", name="get_set")
+async def getSetById(request:Request, set_id:int):
+    with Session(engine) as session:
+        set = session.exec(select(Set).where(Set.id == set_id)).first()
+        return templates.TemplateResponse(
+            request=request, name="set.html", context={"name": set.name, "cards": set.cards}
+        )
+
 @app.get("/play", response_class=HTMLResponse)
 async def play(request:Request):
     return templates.TemplateResponse(
@@ -97,16 +105,21 @@ async def play(request:Request):
 
 @app.post("/card/add")
 async def addCard(card:Card):
-    cards.append(card)
-    return cards
+    with Session(engine) as session:
+        db_card = Card(front=card.front, back=card.back, set_id=card.set_id)
+        session.add(db_card)
+        session.commit()
+        session.refresh(db_card)
+        return db_card
     
 @app.post("/sets/add")
 async def addSet(session: SessionDep, set:Set):
-    db_set = Set(name=set.name)
-    session.add(db_set)
-    session.commit()
-    session.refresh(db_set)
-    return db_set
+    with Session(engine) as session:
+        db_set = Set(name=set.name)
+        session.add(db_set)
+        session.commit()
+        session.refresh(db_set)
+        return db_set
 
 #helper functions
 def getRandomCard():

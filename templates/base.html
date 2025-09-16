@@ -9,8 +9,22 @@
 		{% endblock %}
 	</head>
 	<body>
+		<header>
+			<nav>
+				<a href="/">Home</a> |
+				<a href="/play">Play</a> |
+				<a href="/sets">Sets</a>
+			</nav>
+		</header>
 		<section id="content">
 			{% block content %}{% endblock %}
 		</section>
+		<footer>
+			<section id="credits">
+				<p>
+					Created by: Michael Jessup in the year of our LORD, 2025
+				</p>
+			</section>
+		</footer>
 	</body>
 </html>
