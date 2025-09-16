@@ -4,69 +4,78 @@ from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Field, SQLModel, Relationship, select
+from contextlib import asynccontextmanager
+from db.session import create_db_and_tables, SessionDep
 from random import choice
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    yield
+
 templates = Jinja2Templates(directory="templates")
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-class Card(BaseModel):
-    id: int
-    question: str
-    answer: str
-    attempts: int
-    correct: int
+session = SessionDep
 
-class Set(BaseModel):
-    id: int
-    cards: list[Card]
+class Set(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    cards: list["Card"] = Relationship(back_populates="set")
+
+class Card(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    front: str
+    back: str
+    set_id: int | None = Field(default=None, foreign_key="set.id")
+    set: Set | None = Relationship(back_populates="cards")
 
 class User(BaseModel):
     id: int
     name: str
     email: str
-    sets: list[Set]
 
 cards = [
-        Card(id = 1, question = "What is your quest?", answer = "To seek the Holy Grail!", attempts = 0, correct = 0),
-        Card(id = 2, question = "What is your favorite color?", answer = "Green!", attempts = 0, correct = 0),
-        Card(id = 3, question = "What is 2^2^2", answer = "16", attempts = 0, correct = 0),
-        Card(id = 4, question = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a gopher onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! But wait! There's an endangered species of beetle on the other track! What should you do?", answer = "Do nothing! That species of beetle is crucial to the ecosystem it is in! If you jeopardize its safety then the entire ecosystem could collapse!", attempts = 0, correct = 0),
-        Card(id = 5, question = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a train stop onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! What should you do?", answer = "Do nothing! The train stop was set up to prevent the out of control trolley car from getting into a potentially dangerous accident!", attempts = 0, correct = 0),
-        ]
-
-sets =  [
-        Set(id = 1, cards = cards[0:2]),
-        Set(id = 2, cards = cards[2:])
+        Card(id = 1, front = "What is your quest?", back = "To seek the Holy Grail!", attempts = 0, correct = 0),
+        Card(id = 2, front = "What is your favorite color?", back = "Green!", attempts = 0, correct = 0),
+        Card(id = 3, front = "What is 2^2^2", back = "16", attempts = 0, correct = 0),
+        Card(id = 4, front = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a gopher onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! But wait! There's an endangered species of beetle on the other track! What should you do?", back = "Do nothing! That species of beetle is crucial to the ecosystem it is in! If you jeopardize its safety then the entire ecosystem could collapse!", attempts = 0, correct = 0),
+        Card(id = 5, front = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a train stop onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! What should you do?", back = "Do nothing! The train stop was set up to prevent the out of control trolley car from getting into a potentially dangerous accident!", attempts = 0, correct = 0),
         ]
 
 users = [
-        User(id = 1, name = "Jeffe Jefferson", email = "jjefferson@gmail.com", sets = [sets[0]]),
-        User(id = 2, name = "Jeffe Jefferson III", email = "tresfetresferson@hotmail.com", sets = [sets[1]])
+        User(id = 1, name = "Jeffe Jefferson", email = "jjefferson@gmail.com"),
+        User(id = 2, name = "Jeffe Jefferson III", email = "tresfetresferson@hotmail.com")
         ]
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request:Request):
+    #cards = session.exec(select(Card).order_by(Card.set_id)).all()
     return templates.TemplateResponse(
         request=request, name="index.html", context={"cards": cards}
     )
 
 @app.get("/cards")
 async def getCard(q:str = ""):
+    #cards = session.exec(select(Card)).all()
     search_results = []
     for card in cards:
-        if q.lower() in card.question.lower():
+        if q.lower() in card.front.lower():
             search_results.append(card)
     return search_results
 
 @app.get("/sets")
 async def getSets(request:Request):
+    sets = session.exec(select(Set).order_by(Set.name)).all()
     return templates.TemplateResponse(
         request=request, name="sets.html", context={"sets": sets}
     )
 
 @app.get("/users")
 async def getUsers(request:Request):
+    #users = session.exec(select(User).order_by(User.name)).all()
     return templates.TemplateResponse(
         request=request, name="users.html", context={"users": users}
     )
@@ -80,16 +89,24 @@ async def getCardById(request:Request, card_id:int):
             )
     return None
 
-@app.post("/card/add")
-async def addCard(card:Card):
-    cards.append(card)
-    return cards
-    
 @app.get("/play", response_class=HTMLResponse)
 async def play(request:Request):
     return templates.TemplateResponse(
         request=request, name="play.html", context={"card": getRandomCard()}
     )
+
+@app.post("/card/add")
+async def addCard(card:Card):
+    cards.append(card)
+    return cards
+    
+@app.post("/sets/add")
+async def addSet(session: SessionDep, set:Set):
+    db_set = Set(name=set.name)
+    session.add(db_set)
+    session.commit()
+    session.refresh(db_set)
+    return db_set
 
 #helper functions
 def getRandomCard():

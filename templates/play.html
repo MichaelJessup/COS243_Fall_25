@@ -1,8 +1,9 @@
-<head>
-	<link href="{{url_for('static', path='/css/styles.css')}}" rel="stylesheet">
-	<link href="{{url_for('static', path='/css/cards.css')}}" rel="stylesheet">
-	<script> src="{{url_for('static', path='/scripts/sites.js')}}"</script>
-</head>
+{% extends "base.html" %}
+{% block title %}View Flash Cards{% endblock %}
+{% block head %}
+	{{ super() }}
+{% endblock %}
+{% block content %}
 <br>
 <h1 class="title">Hello Player!</h1>
 <hr>
@@ -12,10 +13,8 @@
 </div>
 <br>
 <br>
-<div class="card">
-	<h2>{{ card.question }}</h2>
-	<h3>{{ card.answer }}</h3>
-</div>
+{% import "macros/card.html" as card_macro %}
+	{{ card_macro.card(card) }}
 <br>
 <hr>
 <br>
@@ -23,3 +22,4 @@
 	<button OnClick={location.href="../"}>Home</button>
 </div>
 <br>
+{% endblock %}
