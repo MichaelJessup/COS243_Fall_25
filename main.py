@@ -31,39 +31,28 @@ class Card(SQLModel, table=True):
     set_id: int | None = Field(default=None, foreign_key="set.id")
     set: Set | None = Relationship(back_populates="cards")
 
-class User(BaseModel):
-    id: int
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
     name: str
     email: str
 
-cards = [
-        Card(id = 1, front = "What is your quest?", back = "To seek the Holy Grail!", attempts = 0, correct = 0),
-        Card(id = 2, front = "What is your favorite color?", back = "Green!", attempts = 0, correct = 0),
-        Card(id = 3, front = "What is 2^2^2", back = "16", attempts = 0, correct = 0),
-        Card(id = 4, front = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a gopher onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! But wait! There's an endangered species of beetle on the other track! What should you do?", back = "Do nothing! That species of beetle is crucial to the ecosystem it is in! If you jeopardize its safety then the entire ecosystem could collapse!", attempts = 0, correct = 0),
-        Card(id = 5, front = "A trolley is speeding down to a fork in the track uncontrollably! A madman has tied a train stop onto one track, but, if you pull the conveniently placed lever, you can stop this crazy man's scheme! What should you do?", back = "Do nothing! The train stop was set up to prevent the out of control trolley car from getting into a potentially dangerous accident!", attempts = 0, correct = 0),
-        ]
-
-users = [
-        User(id = 1, name = "Jeffe Jefferson", email = "jjefferson@gmail.com"),
-        User(id = 2, name = "Jeffe Jefferson III", email = "tresfetresferson@hotmail.com")
-        ]
-
 @app.get("/", response_class=HTMLResponse)
 async def root(request:Request):
-    #cards = session.exec(select(Card).order_by(Card.set_id)).all()
-    return templates.TemplateResponse(
-        request=request, name="index.html", context={"cards": cards}
-    )
+    with Session(engine) as session:
+        cards = session.exec(select(Card).order_by(Card.set_id)).all()
+        return templates.TemplateResponse(
+            request=request, name="index.html", context={"cards": cards}
+        )
 
 @app.get("/cards")
 async def getCard(q:str = ""):
-    #cards = session.exec(select(Card)).all()
-    search_results = []
-    for card in cards:
-        if q.lower() in card.front.lower():
-            search_results.append(card)
-    return search_results
+    with Session(engine) as session:
+        cards = session.exec(select(Card).order_by(Card.set_id)).all()
+        search_results = []
+        for card in cards:
+            if q.lower() in card.front.lower():
+                search_results.append(card)
+        return search_results
 
 @app.get("/sets")
 async def getSets(request:Request):
@@ -75,19 +64,22 @@ async def getSets(request:Request):
 
 @app.get("/users")
 async def getUsers(request:Request):
-    #users = session.exec(select(User).order_by(User.name)).all()
-    return templates.TemplateResponse(
-        request=request, name="users.html", context={"users": users}
-    )
+    with Session(engine) as session:
+        users = session.exec(select(User).order_by(User.name)).all()
+        return templates.TemplateResponse(
+            request=request, name="users.html", context={"users": users}
+        )
 
 @app.get("/cards/{card_id}", name="get_card")
 async def getCardById(request:Request, card_id:int):
-    for card in cards:
-        if card.id == card_id:
-            return templates.TemplateResponse(
-                request=request, name="card.html", context={"card": card}
-            )
-    return None
+    with Session(engine) as session:
+        cards = session.exec(select(Card).order_by(Card.set_id)).all()
+        for card in cards:
+            if card.id == card_id:
+                return templates.TemplateResponse(
+                    request=request, name="card.html", context={"card": card}
+                )
+        return None
 
 @app.get("/sets/{set_id}", name="get_set")
 async def getSetById(request:Request, set_id:int):
@@ -104,7 +96,7 @@ async def play(request:Request):
     )
 
 @app.post("/card/add")
-async def addCard(card:Card):
+async def addCard(session:SessionDep, card:Card):
     with Session(engine) as session:
         db_card = Card(front=card.front, back=card.back, set_id=card.set_id)
         session.add(db_card)
@@ -113,7 +105,7 @@ async def addCard(card:Card):
         return db_card
     
 @app.post("/sets/add")
-async def addSet(session: SessionDep, set:Set):
+async def addSet(session:SessionDep, set:Set):
     with Session(engine) as session:
         db_set = Set(name=set.name)
         session.add(db_set)
@@ -121,6 +113,17 @@ async def addSet(session: SessionDep, set:Set):
         session.refresh(db_set)
         return db_set
 
+@app.post("/users/add")
+async def addUser(session:SessionDep, user:User):
+    with Session(engine) as session:
+        db_user = User(name=user.name, email=user.email)
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+        return db_user
+
 #helper functions
 def getRandomCard():
-    return choice(cards)
+    with Session(engine) as session:
+        cards = session.exec(select(Card).order_by(Card.set_id)).all()
+        return choice(cards)
