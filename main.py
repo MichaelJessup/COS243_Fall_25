@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
-from fastapi import Request
+from fastapi import Request, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Field, Session, SQLModel, Relationship, select
@@ -79,7 +79,7 @@ async def getCardById(request:Request, card_id:int):
                 return templates.TemplateResponse(
                     request=request, name="card.html", context={"card": card}
                 )
-        return None
+        raise HTTPException(status_code=404, detail="Card not found")
 
 @app.get("/sets/{set_id}", name="get_set")
 async def getSetById(request:Request, set_id:int):
