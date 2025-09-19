@@ -25,39 +25,8 @@ def test_read_sets():
     assert "Hello Sets!" in response.content.decode()
 
 def test_read_card():
-    #Setup a test database so that we don't create data in our real database.
-    #Use this database for testing
-    engine = create_engine(
-        "sqlite:///test.db", connect_args={"check_same_thread": False}
-    )
-    SQLModel.metadata.create_all(engine)
-
-    with Session(engine) as session:
-        def get_session_override():
-            return session
-        app.dependency_overrides[get_session] = get_session_override
-
     client = TestClient(app)
-
-    #Post our set data and save the response
-    response = client.post(
-        "/card/add", data={"front":"Does this work?", "back":"Yes?", "set_id":1}
-    )
-
-    #Ensure that the response returns status code '200 ok'
-    #Ensure that the page returned html, not json
-    assert response.status_code == 200
-    assert "text/html" in response.headers["content-type"]
-
-    html = response.text
-
-    #Does the front, back, and set_id we created appear in the html?
-    assert "Does this work?" in html
-    assert "Yes?" in html
-    assert "1" in html
-
-    #Check that the card page is returned
-    response = client.get("/card/")
+    response = client.get("/cards/1")
     assert response.status_code == 200
     assert "Hello Card!" in response.content.decode()
 

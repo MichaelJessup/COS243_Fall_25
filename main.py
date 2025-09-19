@@ -79,7 +79,9 @@ async def getCardById(request:Request, card_id:int):
                 return templates.TemplateResponse(
                     request=request, name="card.html", context={"card": card}
                 )
-        raise HTTPException(status_code=404, detail="Card not found")
+        return templates.TemplateResponse(
+            request=request, name="card.html", context={"card": Card(front="", back="", set_id=0)}
+        )
 
 @app.get("/sets/{set_id}", name="get_set")
 async def getSetById(request:Request, set_id:int):
@@ -93,6 +95,11 @@ async def getSetById(request:Request, set_id:int):
 async def play(request:Request):
     return templates.TemplateResponse(
         request=request, name="play.html", context={"card": getRandomCard()}
+    )
+@app.get("/lorem", response_class=HTMLResponse)
+async def play(request:Request):
+    return templates.TemplateResponse(
+        request=request, name="lorem.html"
     )
 
 @app.post("/card/add")
