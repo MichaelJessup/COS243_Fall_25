@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Field, Session, SQLModel, Relationship, select
 from contextlib import asynccontextmanager
-from db.session import create_db_and_tables, SessionDep, engine
+from .db.session import create_db_and_tables, SessionDep, engine, get_session
 from random import choice
 import json
 
