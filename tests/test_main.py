@@ -1,8 +1,8 @@
-from fastapi.testclient import TestClient
 from sqlmodel import Session, Field, SQLModel, create_engine, select, Relationship
 import re
 from ..main import app, get_session
 from bs4 import BeautifulSoup
+from fastapi.testclient import TestClient
 
 #client = TestClient(app)
 
