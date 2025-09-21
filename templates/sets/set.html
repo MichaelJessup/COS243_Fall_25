@@ -8,6 +8,11 @@
 	<h1 class="title">Hello Set!</h1>
 	<hr>
 	<br>
+	<form class="button" action="/sets/{{id}}/edit" method="get">
+		<button type="submit" OnClick={location.reload();}>Edit Set</button>
+	</form>
+	<br>
+	<br>
 	<h2>SET: {{ name }}</h2>
 	{% for card in cards %}
 		<br>

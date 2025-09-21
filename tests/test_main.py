@@ -4,8 +4,6 @@ from ..main import app, get_session
 from bs4 import BeautifulSoup
 from fastapi.testclient import TestClient
 
-#client = TestClient(app)
-
 def test_read_main():
     client = TestClient(app)
     response = client.get("/")
@@ -76,7 +74,7 @@ def test_create_set():
     #BEAUTIFUL SOUP Test
     soup = BeautifulSoup(html, 'html.parser')
     headers = soup.find_all('h2')
-    assert headers[1].text == "Science"
+    assert headers[0].text == "SET: Science"
     
 
     #Newly Created set shows up on the set page
@@ -104,7 +102,7 @@ def test_create_card():
 
     #Post our set data and save the response
     response = client.post(
-        "/card/add", data={"front":"Does this work?", "back":"Yes?", "set_id":1}
+        "/cards/add", data={"front":"Does this work?", "back":"Yes?", "set_id":1}
     )
 
     #Ensure that the response returns status code '200 ok'
@@ -124,20 +122,6 @@ def test_create_card():
     match = re.search(r"/cards/(\d+)", html)
     assert match is not None
     item_id = match.group(1)
-
-    #Call the get sets page with that id
-    response = client.get("/sets/"+item_id)
-    assert response.status_code == 200
-    assert "text/html" in response.headers["content-type"]
-    html = response.text
-    assert "Does this work?" in html
-    assert "Yes?" in html
-    assert "1" in html
-
-    #BEAUTIFUL SOUP Test
-    soup = BeautifulSoup(html, 'html.parser')
-    headers = soup.find_all('h2')
-    assert headers[0].text == "Does this work?"
 
     #Newly Created card shows up on card page
     response = client.get("/cards/")

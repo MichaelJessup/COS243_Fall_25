@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}View Flash Cards{% endblock %}
+{% block head %}
+	{{ super() }}
+{% endblock %}
+{% block content %}
+	<br>
+	<h1 class="title">Add User!</h1>
+	<hr>
+		{% if user %}
+			<form action="/users/edit" method="post">
+				<p>Name: </p> <input type="text" name="name" value="{{user.name}}">
+				<br>
+				<p>Email: </p> <input type="text" name="email" value="{{user.email}}">
+				<hr>
+				<input type="submit" value="Submit"> <button href='/users/'>Cancel</button>
+				<input style="visibility: hidden;" type="number" name="id" value="{{user.id}}">
+			</form>
+			<hr>
+			<form action="/users/{{user.id}}/delete" method="post">
+				<button type="submit" onclick="return confirm('Are you sure you want to delete this user? It would make me sad! :\'\(')">
+					Delete User
+				</button>
+			</form>
+		{% else %}
+			<form action="/users/add" method="post">
+				<p>Name: </p> <input type="text" name="name">
+				<br>
+				<p>Email: </p> <input type="text" name="email">
+				<hr>
+				<input type="submit" value="Submit">
+			</form>
+		{% endif %}
+	<hr>
+	<br>
+{% endblock %}

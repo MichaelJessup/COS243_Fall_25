@@ -10,7 +10,7 @@
 	<br>
 	{% import "macros/card.html" as card_macro %}
 	{% for card in cards %}
-		<a href="{{url_for('get_card', card_id=card.id)}}">
+		<a href="cards/{{card.id}}">
 			{{ card_macro.card(card) }}
 		</a>
 		<br>
