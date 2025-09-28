@@ -4,7 +4,6 @@
 	{{ super() }}
 {% endblock %}
 {% block content %}
-	<br>
 	<h1 class="title">Hello Player!</h1>
 	<hr>
 	<br>
@@ -12,10 +11,18 @@
 		<button OnClick={location.reload();}>Get Another Card</button>
 	</div>
 	<br>
-	<br>
-	{% import "macros/card.html" as card_macro %}
-		{{ card_macro.card(card) }}
+	<section id="card">
+		<button class="card" id="play_card" OnClick="{
+			self = document.getElementById('play_card');
+			front = self.children[0];
+			back = self.children[1];
+			front.classList.toggle('hidden');
+			back.classList.toggle('hidden');
+		}">
+			<h2>{{ card.front }}</h2>
+			<h3 class="hidden">{{ card.back }}</h3>
+		</button>
+	</section>
 	<br>
 	<hr>
-	<br>
 {% endblock %}

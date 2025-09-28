@@ -4,18 +4,27 @@
 	{{ super() }}
 {% endblock %}
 {% block content %}
-	<br>
 	<h1 class="title">Flashcard</h1>
 	<hr>
 	<br>
-	{% import "macros/card.html" as card_macro %}
-	{% for card in cards %}
-		<a href="cards/{{card.id}}">
-			{{ card_macro.card(card) }}
-		</a>
-		<br>
-	{% endfor %}
+	<section class="cards">
+		{% import "macros/card.html" as card_macro %}
+		{% for card in cards %}
+			{% if loop.index%2 == 0 %}
+				<div class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+					<a href="cards/{{card.id}}">
+						{{ card_macro.card(card) }}
+					</a>
+				</div>
+			{% else %}
+				<div class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+					<a href="cards/{{card.id}}">
+						{{ card_macro.card(card) }}
+					</a>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</section>
 	<br>
 	<hr>
-	<br>
 {% endblock %}

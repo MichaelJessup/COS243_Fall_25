@@ -4,22 +4,32 @@
 	{{ super() }}
 {% endblock %}
 {% block content %}
-	<br>
 	<h1 class="title">Hello Sets!</h1>
 	<hr>
 	{% for set in sets %}
-		<br>
-		<a href="{{ url_for('get_set', set_id=set.id) }}">SET: {{ set.name }}</a>
-		{% for card in set.cards %}
-			<br>
-			<a href="{{ url_for('get_card', card_id=card.id) }}">
-				{% import "macros/card.html" as card_macro %}
-					{{ card_macro.card(card) }}
-			</a>
-		{% endfor %}
-		<br>
+		<section class="set">
+			<a class="set_link" href="{{ url_for('get_set', set_id=set.id) }}">SET: {{ set.name }}</a>
+			<section class="cards">
+				{% for card in set.cards %}
+					{% if loop.index%2 == 0 %}
+						<div class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+							<a href="{{ url_for('get_card', card_id=card.id) }}">
+								{% import "macros/card.html" as card_macro %}
+									{{ card_macro.card(card) }}
+							</a>
+						</div>
+					{% else %}
+						<div class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+							<a href="{{ url_for('get_card', card_id=card.id) }}">
+								{% import "macros/card.html" as card_macro %}
+									{{ card_macro.card(card) }}
+							</a>
+						</div>
+					{% endif %}
+				{% endfor %}
+			</section>
+		</section>
 	{% endfor %}
 	<br>
 	<hr>
-	<br>
 {% endblock %}

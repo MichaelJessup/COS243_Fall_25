@@ -4,25 +4,34 @@
 	{{ super() }}
 {% endblock %}
 {% block content %}
-	<br>
 	<h1 class="title">Hello Set!</h1>
 	<hr>
 	<br>
 	<form class="button" action="/sets/{{id}}/edit" method="get">
 		<button type="submit" OnClick={location.reload();}>Edit Set</button>
 	</form>
-	<br>
-	<br>
-	<h2>SET: {{ name }}</h2>
-	{% for card in cards %}
-		<br>
-		<a href="{{ url_for('get_card', card_id=card.id) }}">
-			{% import "macros/card.html" as card_macro %}
-				{{ card_macro.card(card) }}
-		</a>
-	{% endfor %}
-	<br>
+	<section class="set">
+		<h2 class="set_link">SET: {{ name }}</h2>
+		<section class="cards">
+			{% for card in cards %}
+				{% if loop.index%2 == 0 %}
+					<div class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+						<a href="{{ url_for('get_card', card_id=card.id) }}">
+							{% import "macros/card.html" as card_macro %}
+								{{ card_macro.card(card) }}
+						</a>
+					</div>
+				{% else %}
+					<div class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+						<a href="{{ url_for('get_card', card_id=card.id) }}">
+							{% import "macros/card.html" as card_macro %}
+								{{ card_macro.card(card) }}
+						</a>
+					</div>
+				{% endif %}
+			{% endfor %}
+		</section>
+	</section>
 	<br>
 	<hr>
-	<br>
 {% endblock %}

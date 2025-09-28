@@ -1,3 +1,8 @@
+:root {
+	--card_front: 1.5em;
+	--card_back: 1.17em;
+}
+
 .title {
 	font-weight: normal;
 	font-size: 36px;
@@ -11,31 +16,331 @@
 }
 
 .button button {
-	font-size: 28px
+	font-size: 28px;
+	color: black;
+	background-color: #EEC085;
+	box-shadow: 0px 0px 10px #AA865B;
+	transition: 0.5s;
+}
+
+.button button:hover {
+	color: #C8730F;
+	background-color: #FFDBAC;
+	box-shadow: 0px 0px 15px #AA865B;
 }
 
 body {
-	background-color: white;
-}
-
-@media screen and (max-width: 600px) {
-	body {
-		background-color: yellow;
-	}
-}
-
-@media screen and (max-width: 1200px) and (min-width: 601px) {
-	body {
-		background-color: yellowgreen;
-	}
-}
-
-@media screen and (min-width: 1201px) {
-	body {
-		background-color: seagreen;
-	}
+	background-color: bisque;
 }
 
 p {
 	font-size: 1.2em;
+}
+
+br {
+	display: block;
+	margin: 10px 0px;
+}
+
+hr {
+	color: burlywood;
+	width: 100%;
+}
+
+nav {
+	min-width: 320px;
+	max-width: 25%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+
+nav > a:link, a:visited, a:active {
+	color: black;
+	text-decoration: none;
+}
+
+nav > a:hover {
+	color: #C8730F;
+	text-decoration: underline;
+	text-decoration-color: black;
+}
+
+@media screen and (max-width: 600px) {
+	:root {
+		--card_front: 1em;
+		--card_back: 0.83em;
+	}
+
+	nav {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-evenly;
+	}
+}
+
+.set_link {
+	font-size: 1.5em;
+	color: black;
+	text-decoration: none;
+}
+
+.set_link:hover {
+	color: #C8730F;
+	text-decoration: underline;
+	text-decoration-color: black;
+}
+
+a {
+	color: black;
+	text-decoration: none;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+#content {
+	flex-grow: 10;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-content: center;
+}
+
+#meat {
+	height: 90%;
+}
+
+footer {
+	padding: 20px;
+	align-self: flex-end;
+}
+
+footer > section#credits {
+	text-align: right;
+}
+
+section#credits > p {
+	font-size: 1.2em;
+}
+
+section#credits > a {
+	font-size: 1.2em;
+	color: black;
+	text-decoration: none;
+}
+
+section#credits > a:hover {
+	color: #C8730F;
+	text-decoration: underline;
+	text-decoration-color: black;
+}
+
+section#edit {
+	display: flex;
+	flex-direction: column;
+}
+
+section#edit > form {
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+}
+
+section#edit > form > textarea {
+	margin: -8px;
+}
+
+section#edit > form > select {
+	padding: 6px 10px;
+	border-radius: 100px;
+	border-style: hidden;
+	box-shadow: 0px 0px 10px #AA865B;
+	color: black;
+	background-color: #EEC085;
+	box-shadow: 0px 0px 10px #AA865B;
+	transition: 0.5s;
+}
+
+section#edit > form > select:hover {
+	color: #C8730F;
+	background-color: #FFDBAC;
+	box-shadow: 0px 0px 15px #AA865B;
+}
+
+section#edit > form > input, button {
+	margin: 8px 0px;
+	padding: 6px 10px;
+	border-radius: 100px;
+	border-style: hidden;
+	color: black;
+	background-color: #EEC085;
+	box-shadow: 0px 0px 10px #AA865B;
+	transition: 0.5s;
+}
+
+section#edit > form > input:hover, button:hover {
+	color: #C8730F;
+	background-color: #FFDBAC;
+	box-shadow: 0px 0px 15px #AA865B;
+}
+
+section#edit > form > hr {
+	width: 80px;
+	margin-top: 16px;
+}
+
+section#edit > hr {
+	width: 80px;
+	margin-top:  -28px;
+}
+
+section#add {
+	display: flex;
+	flex-direction: column;
+}
+
+section#add > form {
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+}
+
+section#add > form > textarea {
+	margin: -8px;
+}
+
+section#add > form > select {
+	padding: 6px 10px;
+	border-radius: 100px;
+	border-style: hidden;
+	box-shadow: 0px 0px 10px #AA865B;
+	color: black;
+	background-color: #EEC085;
+	box-shadow: 0px 0px 10px #AA865B;
+	transition: 0.5s;
+}
+
+section#add > form > select:hover {
+	color: #C8730F;
+	background-color: #FFDBAC;
+	box-shadow: 0px 0px 15px #AA865B;
+}
+
+section#add > form > input, button {
+	margin: 8px 0px;
+	padding: 6px 10px;
+	border-radius: 100px;
+	border-style: hidden;
+	color: black;
+	background-color: #EEC085;
+	box-shadow: 0px 0px 10px #AA865B;
+	transition: 0.5s;
+}
+
+section#add > form > input:hover, button:hover {
+	color: #C8730F;
+	background-color: #FFDBAC;
+	box-shadow: 0px 0px 15px #AA865B;
+}
+
+section#add > form > hr {
+	width: 80px;
+	margin-top: 16px;
+}
+
+section#add > hr {
+	width: 80px;
+	margin-top:  -28px;
+}
+
+section.set {
+	width: 90%;
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+}
+
+section.set > a.set_link {
+	align-self: start;
+	margin: 20px 5%;
+}
+
+section.cards {
+	width: 90%;
+	align-self: center;
+	display: grid;
+	grid-template-columns: 50% 50%;
+	column-gap: 20px;
+	row-gap: 20px;
+}
+
+section.cards > div.one {
+	grid-column: 1;
+}
+
+section.cards > div.two {
+	grid-column: 2;
+}
+
+section#card {
+	width: 45%;
+	align-self: center;
+	display: grid;
+	grid-template-columns: 100%;
+}
+
+section#card h2, section.cards h2 {
+	font-size: var(--card_front);
+}
+
+section#card h3, section.cards h3 {
+	font-size: var(--card_back);
+}
+
+@media screen and (max-width: 1400px) {
+	section.cards {
+		width: 90%;
+		align-self: center;
+		display: grid;
+		grid-template-columns: 100%;
+	}
+
+	section.cards > div.two {
+		grid-column: 1;
+	}
+
+	section#card {
+		width: 90%;
+		align-self: center;
+		display: grid;
+		grid-template-columns: 100%;
+	}
+}
+
+.delete {
+	width: 180px;
+	margin: 8px 0px;
+	padding: 6px 10px;
+	background-color: #EAB06C;
+	border-radius: 100px;
+	border-style: hidden;
+	box-shadow: 0px 0px 10px #AA865B;
+}
+
+.delete:hover {
+	color: #C4761B;
+	background-color: #F0C592;
+	box-shadow: 0px 0px 15px #AA865B;
+}
+
+.hidden {
+	visibility: hidden;
+	height: 0px;
+	width: 0px;
+	margin: 0px;
+	padding: 0px!important;
 }
