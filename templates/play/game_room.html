@@ -117,6 +117,15 @@
 		        message.appendChild(content);
 		        messages.appendChild(message);
 
+		        message = document.createElement('li');
+		    	content = document.createTextNode(
+		    		"answer was: " + answer.textContent
+		    	);
+
+		    	message.classList.add("answer");
+		    	message.appendChild(content);
+		    	messages.appendChild(message);
+
 		        if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
 		        	setCard(data.card);
 		    	}
@@ -148,12 +157,6 @@
 	        	data = JSON.parse(data);
 
 	        	updateScoreBoard(data["scores"]);
-	        	if (cards.length == 0) {
-		        	question.parentElement.parentElement.style.display = "none";
-		        	ws.send(JSON.stringify({
-		        		payload: {end:"nobody put this in, this is a secret message that ends the game"}
-		        	}));
-		        }
 	        }
 	        else if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
 		        let messages = document.getElementById('messages');
@@ -194,6 +197,12 @@
 	        	ws.send(JSON.stringify({
 	        		payload: {answer:user_name, card:getRandomCard()}
 	        	}));
+
+	        	if (cards.length == 0) {
+		        	ws.send(JSON.stringify({
+		        		payload: {end:"nobody put this in, this is a secret message that ends the game"}
+		        	}));
+		        }
 	        }
 	        else if (input.value.slice(0,6) == "/start") {
 	        	question.parentElement.parentElement.style.display = "grid";

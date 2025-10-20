@@ -66,6 +66,12 @@ nav > a:hover {
 	text-decoration-color: black;
 }
 
+ul {
+	display: flex;
+	flex-direction: column;
+	list-style-type: circle;
+}
+
 @media screen and (max-width: 600px) {
 	:root {
 		--card_front: 1em;
@@ -407,6 +413,19 @@ section.form > form > input:hover, button:hover {
 	box-shadow: 0px 0px 15px #AA865B;
 }
 
+section.display {
+	display: flex;
+	flex-direction: column;
+}
+
+section.display > ul#scoreboard {
+	display: flex;
+	flex-direction: column;
+	align-self: center;
+	list-style-type: none!important;
+	padding-left: 0px;
+}
+
 @media screen and (max-width: 1400px) {
 	section.cards {
 		width: 90%;
@@ -446,6 +465,11 @@ section.form > form > input:hover, button:hover {
 .whisper {
 	font-style: italic;
 	color: darkgoldenrod;
+}
+
+.answer {
+	font-style: italic;
+	color: darkred;
 }
 
 .hidden {

@@ -184,7 +184,6 @@ def checkUsers(user):
         if (u[0] == user):
             return True
     return False
-
 def getWSFromUser(user):
     for u in manager.current_users:
         if (u[0] == user):
