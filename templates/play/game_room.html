@@ -58,7 +58,9 @@
 		<section class="chat">
 		    <ul id="messages"></ul>
 		    <form action="/game" onsubmit="sendMessage(event)">
-		        <textarea id="messageText" rows=1></textarea>
+	        	<textarea id="messageText" rows=1
+	        	placeholder="type /start to begin and /end to close game session"
+	        	onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
 		        <button>Send!</button>
 		    </form>
 		</section>
@@ -86,6 +88,7 @@
 		let question = document.getElementById("question");
 		let answer = document.getElementById("answer");
 		let user_name = "";
+		let score = {};
 
 	    function getCookie(name) {
 	        const value = `; ${document.cookie}`
@@ -110,6 +113,13 @@
 		        	" answered the question!"
 		        );
 
+		        if (data.answer in score) {
+		        	score[data.answer] += 1;
+		        }
+		        else {
+		        	score[data.answer] = 1;
+		        }
+
 		        message.appendChild(content);
 		        messages.appendChild(message);
 
@@ -125,13 +135,14 @@
 		        	cards.push(...answered);
 		        	answered = new Array();
 		        }
+		        score = {};
 	        	setCard(JSON.parse(event.data.replaceAll(/'/g, '"')).start);
 	        	question.parentElement.parentElement.style.display = "grid";
 	        }
 	        else if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
-		        var messages = document.getElementById('messages');
-		        var message = document.createElement('li');
-		        var content = document.createTextNode(event.data);
+		        let messages = document.getElementById('messages');
+		        let message = document.createElement('li');
+		        let content = document.createTextNode(event.data);
 
 		        message.appendChild(content);
 		        messages.appendChild(message);
@@ -140,6 +151,18 @@
 		    if (event.data.includes("nobody put this in, this is a secret message that ends the game")) {
 	        	console.log("ending");
 	        	question.parentElement.parentElement.style.display = "none";
+
+	        	let maxScore = Math.max(...Object.values(score));
+	        	let winner = getKeyByValue(score, maxScore);
+
+	        	let messages = document.getElementById('messages');
+		        let message = document.createElement('li');
+		        let content = document.createTextNode(
+		        	winner + " won with " + maxScore.toString() + " questions answered correctly!"
+		        );
+
+		        message.appendChild(content);
+		        messages.appendChild(message);
 	        }
 	    }
 
@@ -209,10 +232,9 @@
 	    	return Math.floor(Math.random() * cards.length);
 	    }
 
-	    window.onload = fillArrays();
+	    window.onload = setup();
 
-	    function fillArrays() {
-	    	setup();
+	    function setup() {
 	    	const dom_s = document.getElementsByClassName("hidden_set");
 
 	    	for (let s of dom_s) {
@@ -235,17 +257,14 @@
 	    	if (document.getElementById("greet_user") != null) {
 	    		user_name = document.getElementById("greet_user").textContent.slice(6);
 	    	}
-	    }
 
-	    function setup() {
-	    	let sections = document.getElementsByClassName("cards");
-	    	let length = sections.length;
-	    	let style = window.getComputedStyle(sections[0]);
-	    	if (style.display == "flex!important" || style.display == "flex") {
-	    		console.log("flexing on the haters")
-	    		for (let i = length - 1; i >= 0; i--) {
-	    			sections[i].classList.replace("cards", "portrait_cards");
-	    		}
+	    	let textarea = document.getElementById("messageText");
+	    	let style = window.getComputedStyle(textarea);
+	    	console.log(textarea);
+	    	console.log(style.padding);
+
+	    	if (style.padding == "4%") {
+	    		textarea.rows = 3;
 	    	}
 	    }
 	</script>
