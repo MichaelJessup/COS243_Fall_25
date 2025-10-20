@@ -37,11 +37,11 @@
 		{% else %}
 			<section id="add">
 				<form action="/cards/add" method="post">
-					<p>Front: </p> <textarea name="front" rows=8></textarea>
+					<p>Front: </p> <textarea name="front" rows=8 required minlength="1"></textarea>
 					<br>
-					<p>Back: </p> <textarea name="back" rows=8></textarea>
+					<p>Back: </p> <textarea name="back" rows=8 required minlength="1" maxlength="10"></textarea>
 					<br>
-					<p>Set: </p> <select name="set_id">
+					<p>Set: </p> <select name="set_id" required>
 						<option name="" value=""></option>
 						{% for set in sets %}
 							{% if set.id == set_id %}

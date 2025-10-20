@@ -45,6 +45,8 @@ class ConnectionManager:
         self.current_game: bool = False
         self.current_cards: list[Card] = []
         self.current_sets: list[Set] = []
+        self.current_users: list[(User, WebSocket)] = []
+        self.scores: list[(User, int)] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -119,14 +121,24 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str, session: Sess
     # Accept the WebSocket connection and register it with the connection manager
     await manager.connect(websocket)
 
+    # Add to users and score
+    if (not checkUsers(client_id)):
+        manager.current_users.append((client_id, websocket))
+        manager.scores.append((client_id, 0))
+
     try:
         # Keep the connection open and listen for incoming messages
+        await manager.broadcast(f"{client_id} has joined the chat")
+        await manager.broadcast(f"{{'scores': {manager.scores}}}")
+
         while True:           
             # Wait for a JSON message from the client
             data = await websocket.receive_json()
             
             if 'answer' in data['payload']:
+                updateScore(client_id)
                 await manager.broadcast(f"{data['payload']}")
+                await manager.broadcast(f"{{'scores': {manager.scores}}}")
             elif 'start' in data['payload']:
                 await manager.broadcast(f"{data['payload']}")
             elif 'end' in data['payload']:
@@ -137,7 +149,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str, session: Sess
                 await manager.broadcast(f"{data['payload']}")
             elif 'secret' in data['payload']:
                 # Broadcast to user
-                await manager.send_personal_message(f"{data['payload']['secret']}", websocket)
+                message = data['payload']['secret']
+                message = message.split(" ")
+                user = message[0]
+                message = " ".join(message[1:])
+                ws = getWSFromUser(user)
+                if (ws):
+                    await manager.send_personal_message(f"{client_id} whispers: {message}", ws)
+                    await manager.send_personal_message(f"whisper to {user}: {message}", websocket)
             else:
                 # Broadcast the chat message to all connected clients
                 await manager.broadcast(f"{client_id} says: {data['payload']['message']}")
@@ -145,7 +164,35 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str, session: Sess
     # Handle client disconnects
     except WebSocketDisconnect:
         # Remove the client from the connection manager
+        removeUser(websocket)
+
         manager.disconnect(websocket)
         
         # Notify other clients that this client has left
         await manager.broadcast(f"Client #{client_id} left the chat")
+        await manager.broadcast(f"{{'scores': {manager.scores}}}")
+
+def updateScore(user):
+    for s in manager.scores:
+        if (s[0] == user):
+            i = manager.scores.index(s)
+            manager.scores[i] = (s[0], s[1] + 1)
+
+
+def checkUsers(user):
+    for u in manager.current_users:
+        if (u[0] == user):
+            return True
+    return False
+
+def getWSFromUser(user):
+    for u in manager.current_users:
+        if (u[0] == user):
+            return u[1]
+    return False
+
+def removeUser(ws):
+    for u in manager.current_users:
+        if (u[1] == ws):
+            i = manager.current_users.index(u)
+            manager.current_users.pop(i)

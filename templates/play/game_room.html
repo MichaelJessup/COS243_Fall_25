@@ -10,7 +10,7 @@
 		<br>
 		<section id="login">
 		    <form id="form" method="post">
-		        <p>Username: </p> <input id="user_name" type="text" name="user_name" placeholder="Jeffe Jefferson III">
+		        <p>Username: </p> <input id="user_name" type="text" name="user_name" placeholder="Jeffe Jefferson III" required maxlength="16">
 				<input type="submit" value="Submit">
 		    </form>
 		<br>
@@ -19,7 +19,7 @@
 		<script>
 			window.onload = do_request();
 			
-			var action = "/game/login";
+			let action = "/game/login";
 
 			function getAction(form) {
 				form.action = action;
@@ -64,6 +64,9 @@
 		        <button>Send!</button>
 		    </form>
 		</section>
+		<section class="display">
+			<ul id="scoreboard"></ul>
+		</section>
 		{% for set in sets %}
 			<section class="hidden_set" style="display: none">
 				<a class="set_link" href="{{ url_for('get_set', set_id=set.id) }}">SET: {{ set.name }}</a>
@@ -96,41 +99,30 @@
 	        if (parts.length ===2) return parts.pop().split(';').shift();
 	    }
 
-	    var client_id = getCookie('user_name').slice(1);
-	    var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`)
+	    let client_id = getCookie('user_name').slice(1);
+	    let ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`)
 
-	    ws.onmessage = function(event){
-	        console.log(event.data);
+	    ws.onmessage = function(event) {
+			if (event.data.includes("answer")) {
+	        	console.log("getting new answer...");
 
-	        if (event.data.includes("answer")) {
-	        	console.log("getting new answer");
-
-	        	var data = JSON.parse(event.data.replaceAll(/'/g, '"'));
-	        	var messages = document.getElementById('messages');
-		        var message = document.createElement('li');
-		        var content = document.createTextNode(
+	        	let data = JSON.parse(event.data.replaceAll(/'/g, '"'));
+	        	let messages = document.getElementById('messages');
+		        let message = document.createElement('li');
+		        let content = document.createTextNode(
 		        	data.answer + 
 		        	" answered the question!"
 		        );
 
-		        if (data.answer in score) {
-		        	score[data.answer] += 1;
-		        }
-		        else {
-		        	score[data.answer] = 1;
-		        }
-
 		        message.appendChild(content);
 		        messages.appendChild(message);
 
-		        console.log(data.card);
-		        console.log(typeof data.card);
 		        if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
 		        	setCard(data.card);
 		    	}
 	        }
 	        else if (event.data.includes("start")) {
-	        	console.log("starting");
+	        	console.log("starting...");
 	        	if (answered.length != 0) {
 		        	cards.push(...answered);
 		        	answered = new Array();
@@ -138,6 +130,30 @@
 		        score = {};
 	        	setCard(JSON.parse(event.data.replaceAll(/'/g, '"')).start);
 	        	question.parentElement.parentElement.style.display = "grid";
+	        }
+		    else if (event.data.startsWith("whisper to ") || event.data.includes("whispers: ")) {
+		    	let messages = document.getElementById('messages');
+		        let message = document.createElement('li');
+		        let content = document.createTextNode(event.data);
+
+		        message.classList.add("whisper");
+		        message.appendChild(content);
+		        messages.appendChild(message);
+		    }
+		    else if (event.data.includes("scores")) {
+	        	console.log("updating scores...");
+	        	let data = event.data.replaceAll(/'/g, '"');
+	        	data = data.replaceAll(/\(/g, '\[');
+	        	data = data.replaceAll(/\)/g, '\]');
+	        	data = JSON.parse(data);
+
+	        	updateScoreBoard(data["scores"]);
+	        	if (cards.length == 0) {
+		        	question.parentElement.parentElement.style.display = "none";
+		        	ws.send(JSON.stringify({
+		        		payload: {end:"nobody put this in, this is a secret message that ends the game"}
+		        	}));
+		        }
 	        }
 	        else if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
 		        let messages = document.getElementById('messages');
@@ -147,9 +163,8 @@
 		        message.appendChild(content);
 		        messages.appendChild(message);
 		    }
-
-		    if (event.data.includes("nobody put this in, this is a secret message that ends the game")) {
-	        	console.log("ending");
+		    else {
+	        	console.log("ending...");
 	        	question.parentElement.parentElement.style.display = "none";
 
 	        	let maxScore = Math.max(...Object.values(score));
@@ -173,16 +188,14 @@
 	    function sendMessage(event){
 	        
 	        event.preventDefault();
-	        var input = document.getElementById("messageText");
+	        let input = document.getElementById("messageText");
 	        if (input.value.replaceAll(/\s/g, "").toLowerCase() == answer.textContent.replaceAll(/\s/g, "").toLowerCase()) {
-	        	console.log("answered")
-	        	question.parentElement.parentElement.style.display = "grid";
+	        	console.log("answered");
 	        	ws.send(JSON.stringify({
 	        		payload: {answer:user_name, card:getRandomCard()}
 	        	}));
 	        }
 	        else if (input.value.slice(0,6) == "/start") {
-	        	console.log("starting")
 	        	question.parentElement.parentElement.style.display = "grid";
 	        	if (answered.length != 0) {
 		        	cards.push(...answered);
@@ -191,11 +204,9 @@
 	        	let m = JSON.stringify({
 	        		payload: {start:getRandomCard()}
 	        	});
-	        	console.log(m);
 	        	ws.send(m);
 	        }
 	        else if (input.value.slice(0,4) == "/end") {
-	        	console.log("ending")
 	        	question.parentElement.parentElement.style.display = "none";
 	        	ws.send(JSON.stringify({
 	        		payload: {end:"nobody put this in, this is a secret message that ends the game"}
@@ -204,7 +215,7 @@
 	        else if (input.value.slice(0,2) == "/w") {
 	        	console.log("shhhh...")
 	        	ws.send(JSON.stringify({
-	        		payload: {secret:input.value}
+	        		payload: {secret:input.value.slice(3)}
 	        	}));
 	        }
 	        else {
@@ -238,7 +249,6 @@
 	    	const dom_s = document.getElementsByClassName("hidden_set");
 
 	    	for (let s of dom_s) {
-	    		console.log(s);
 	    		const dom_c = s.children[1].children;
 	    		const set_id = s.children[1].id;
 	    		for (let c of dom_c) {
@@ -260,11 +270,29 @@
 
 	    	let textarea = document.getElementById("messageText");
 	    	let style = window.getComputedStyle(textarea);
-	    	console.log(textarea);
-	    	console.log(style.padding);
 
 	    	if (style.padding == "4%") {
 	    		textarea.rows = 3;
+	    	}
+	    }
+
+	    function updateScoreBoard(scores) {
+	    	console.log("updating scoreboard...")
+	    	for (let s of scores) {
+			        score[s[0]] = s[1];
+	        	}
+
+	    	let sb = document.getElementById("scoreboard");
+	    	sb.replaceChildren();
+
+	    	for (let key in score) {
+	    		let l = document.createElement('li');
+		        let s = document.createTextNode(
+		        	key + ": " + score[key].toString()
+		        );
+
+		        l.appendChild(s);
+		        sb.appendChild(l);
 	    	}
 	    }
 	</script>
