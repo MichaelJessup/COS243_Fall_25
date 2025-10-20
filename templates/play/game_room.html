@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}View Flash Cards{% endblock %}
+{% block head %}
+	{{ super() }}
+{% endblock %}
+{% block content %}
+	{% if not user_name or user_name is none %}
+		<h1 class="title">Please log in:</h1>
+		<hr>
+		<br>
+		<section id="login">
+		    <form id="form" method="post">
+		        <p>Username: </p> <input id="user_name" type="text" name="user_name" placeholder="Jeffe Jefferson III">
+				<input type="submit" value="Submit">
+		    </form>
+		<br>
+		<hr>
+
+		<script>
+			window.onload = do_request();
+			
+			var action = "/game/login";
+
+			function getAction(form) {
+				form.action = action;
+			}
+
+			function do_request() {
+				fetch("/game/inactive").then(response => {
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+					return response.json();
+				}).then(data => {
+					console.log(data);
+					if (!data) {
+						action = "/game/setup";
+					}
+					getAction(document.getElementById("form"));
+
+					console.log(document.getElementById("form").action);
+					return data;
+				}).catch(error => {
+					console.error("There was a problem with detecting if there is a game yet:", error);
+				});
+			}
+		</script>
+	{% else %}
+		<h1 id="greet_user" class="title">Hello {{user_name}}</h1>
+		<hr>
+		<br>
+		<section id="card" style="display: none;">
+			<div class="card">
+				<h2 id="question">front</h2>
+				<h3 id="answer" style="display: none;">back</h3>
+			</div>
+		</section>
+		<section class="chat">
+		    <ul id="messages"></ul>
+		    <form action="/game" onsubmit="sendMessage(event)">
+		        <textarea id="messageText" rows=1></textarea>
+		        <button>Send!</button>
+		    </form>
+		</section>
+		{% for set in sets %}
+			<section class="hidden_set" style="display: none">
+				<a class="set_link" href="{{ url_for('get_set', set_id=set.id) }}">SET: {{ set.name }}</a>
+				<section id="set{{set.id}}" class="hidden_cards">
+					{% for card in set.cards %}
+						{% if card in cards %}
+							<div id="{{card.id}}" class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+								<p class="front">{{card.front}}</p>
+								<p class="back">{{card.back}}</p>
+							</div>
+						{% endif %}
+					{% endfor %}
+				</section>
+			</section>
+		{% endfor %}
+	{% endif %}
+
+	<script>
+		let sets = {};
+		let cards = new Array();
+		let answered = new Array();
+		let question = document.getElementById("question");
+		let answer = document.getElementById("answer");
+		let user_name = "";
+
+	    function getCookie(name) {
+	        const value = `; ${document.cookie}`
+	        const parts = value.split(`; ${name}`);
+	        if (parts.length ===2) return parts.pop().split(';').shift();
+	    }
+
+	    var client_id = getCookie('user_name').slice(1);
+	    var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`)
+
+	    ws.onmessage = function(event){
+	        console.log(event.data);
+
+	        if (event.data.includes("answer")) {
+	        	console.log("getting new answer");
+
+	        	var data = JSON.parse(event.data.replaceAll(/'/g, '"'));
+	        	var messages = document.getElementById('messages');
+		        var message = document.createElement('li');
+		        var content = document.createTextNode(
+		        	data.answer + 
+		        	" answered the question!"
+		        );
+
+		        message.appendChild(content);
+		        messages.appendChild(message);
+
+		        console.log(data.card);
+		        console.log(typeof data.card);
+		        if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
+		        	setCard(data.card);
+		    	}
+	        }
+	        else if (event.data.includes("start")) {
+	        	console.log("starting");
+	        	if (answered.length != 0) {
+		        	cards.push(...answered);
+		        	answered = new Array();
+		        }
+	        	setCard(JSON.parse(event.data.replaceAll(/'/g, '"')).start);
+	        	question.parentElement.parentElement.style.display = "grid";
+	        }
+	        else if (!event.data.includes("nobody put this in, this is a secret message that ends the game")) {
+		        var messages = document.getElementById('messages');
+		        var message = document.createElement('li');
+		        var content = document.createTextNode(event.data);
+
+		        message.appendChild(content);
+		        messages.appendChild(message);
+		    }
+
+		    if (event.data.includes("nobody put this in, this is a secret message that ends the game")) {
+	        	console.log("ending");
+	        	question.parentElement.parentElement.style.display = "none";
+	        }
+	    }
+
+	    function getKeyByValue(d, v) {
+	    	return Object.keys(d).find(k => d[k] === v);
+	    }
+
+	    function sendMessage(event){
+	        
+	        event.preventDefault();
+	        var input = document.getElementById("messageText");
+	        if (input.value.replaceAll(/\s/g, "").toLowerCase() == answer.textContent.replaceAll(/\s/g, "").toLowerCase()) {
+	        	console.log("answered")
+	        	question.parentElement.parentElement.style.display = "grid";
+	        	ws.send(JSON.stringify({
+	        		payload: {answer:user_name, card:getRandomCard()}
+	        	}));
+	        }
+	        else if (input.value.slice(0,6) == "/start") {
+	        	console.log("starting")
+	        	question.parentElement.parentElement.style.display = "grid";
+	        	if (answered.length != 0) {
+		        	cards.push(...answered);
+		        	answered = new Array();
+		        }
+	        	let m = JSON.stringify({
+	        		payload: {start:getRandomCard()}
+	        	});
+	        	console.log(m);
+	        	ws.send(m);
+	        }
+	        else if (input.value.slice(0,4) == "/end") {
+	        	console.log("ending")
+	        	question.parentElement.parentElement.style.display = "none";
+	        	ws.send(JSON.stringify({
+	        		payload: {end:"nobody put this in, this is a secret message that ends the game"}
+	        	}));
+	        }
+	        else if (input.value.slice(0,2) == "/w") {
+	        	console.log("shhhh...")
+	        	ws.send(JSON.stringify({
+	        		payload: {secret:input.value}
+	        	}));
+	        }
+	        else {
+		        ws.send(JSON.stringify({
+		            payload: {message:input.value}
+		        }));
+		    }
+	        input.value = '';
+	    }
+
+	    function setCard(id) {
+	    	const card = document.getElementById(cards[id]);
+	    	
+	    	question.textContent = card.children[0].textContent;
+	    	answer.textContent = card.children[1].textContent;
+
+	    	answered.push(cards[id]);
+	    	cards.splice(id, 1);
+	    }
+
+	    function getRandomCard() {
+	    	if (cards.length == 0) {
+	    		return "nobody put this in, this is a secret message that ends the game";
+	    	}
+	    	return Math.floor(Math.random() * cards.length);
+	    }
+
+	    window.onload = fillArrays();
+
+	    function fillArrays() {
+	    	setup();
+	    	const dom_s = document.getElementsByClassName("hidden_set");
+
+	    	for (let s of dom_s) {
+	    		console.log(s);
+	    		const dom_c = s.children[1].children;
+	    		const set_id = s.children[1].id;
+	    		for (let c of dom_c) {
+	    			if (set_id in sets) {
+		    			sets[set_id].push(c.id);
+		    			cards.push(c.id);
+		    		}
+		    		else {
+		    			sets[set_id] = new Array();
+		    			sets[set_id].push(c.id);
+		    			cards.push(c.id);
+		    		}
+	    		}
+	    	}
+
+	    	if (document.getElementById("greet_user") != null) {
+	    		user_name = document.getElementById("greet_user").textContent.slice(6);
+	    	}
+	    }
+
+	    function setup() {
+	    	let sections = document.getElementsByClassName("cards");
+	    	let length = sections.length;
+	    	let style = window.getComputedStyle(sections[0]);
+	    	if (style.display == "flex!important" || style.display == "flex") {
+	    		console.log("flexing on the haters")
+	    		for (let i = length - 1; i >= 0; i--) {
+	    			sections[i].classList.replace("cards", "portrait_cards");
+	    		}
+	    	}
+	    }
+	</script>
+{% endblock %}

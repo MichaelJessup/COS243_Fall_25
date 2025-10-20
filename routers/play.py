@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
-from sqlmodel import select, Session
+from sqlmodel import select
 from ..db.session import get_session, SessionDep
 from ..db.models import Card, Set
 from fastapi.templating import Jinja2Templates

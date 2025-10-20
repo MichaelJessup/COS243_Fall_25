@@ -7,12 +7,12 @@
 	<h1 class="title">Hello Card!</h1>
 	<hr>
 	{% for card in cards %}
-			<br>
-			<a href="{{ url_for('get_card', card_id=card.id) }}">
-				{% import "macros/card.html" as card_macro %}
-					{{ card_macro.card(card) }}
-			</a>
-		{% endfor %}
+		<br>
+		<a href="{{ url_for('get_card', card_id=card.id) }}">
+			{% import "macros/card.html" as card_macro %}
+				{{ card_macro.card(card) }}
+		</a>
+	{% endfor %}
 	<hr>
 	<br>
 {% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}View Flash Cards{% endblock %}
+{% block head %}
+	{{ super() }}
+{% endblock %}
+{% block content %}
+	<h1 class="title">Hello {{user_name}}</h1>
+	<h2 class="subtitle">
+		Click on cards to toggle them in. Or click on a set to toggle all the cards in the set.
+	</h2>
+	<hr>
+	<br>
+	{% for set in sets %}
+		<section class="set">
+			<p id="set{{set.id}}" class="set_link" href="{{ url_for('get_set', set_id=set.id) }}" onclick="toggleSet({{set.id}})">
+				SET: {{ set.name }}
+			</p>
+			<button id="btn{{set.id}}" onclick="toggleVis({{set.id}})">Toggle Visibility</button>
+			<section class="cards" style="display: none">
+				{% for card in set.cards %}
+					{% if loop.index%2 == 0 %}
+						<div id="{{card.id}}" onclick="toggleCard({{card.id}})" class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+							<p href="{{ url_for('get_card', card_id=card.id) }}">
+								{% import "macros/card.html" as card_macro %}
+									{{ card_macro.card(card) }}
+							</p>
+						</div>
+					{% else %}
+						<div id="{{card.id}}" onclick="toggleCard({{card.id}})" class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+							<p href="{{ url_for('get_card', card_id=card.id) }}">
+								{% import "macros/card.html" as card_macro %}
+									{{ card_macro.card(card) }}
+							</p>
+						</div>
+					{% endif %}
+				{% endfor %}
+			</section>
+		</section>
+	{% endfor %}
+	<section class="form">
+		<form action="/game/start" method="post">
+			<input id="data" type="text" name="data" value="" style="display: none">
+			<input type="submit" name="Start Game" onclick="getData()">
+		</form>
+	</section>
+
+	<script>
+	    var cards = new Array();
+
+	    var sets = new Array();
+
+	    var user_name = document.getElementById("content").children[0].textContent.slice(6);
+
+	    var displayMethod = "grid";
+
+	    window.onload = setup();
+
+	    function setup() {
+	    	let sections = document.getElementsByClassName("cards");
+	    	let length = sections.length;
+	    	let style = window.getComputedStyle(sections[0]);
+	    	if (style.display == "flex!important" || style.display == "flex") {
+	    		console.log("flexing on the haters")
+	    		for (let i = length - 1; i >= 0; i--) {
+	    			sections[i].classList.replace("cards", "portrait_cards");
+	    		}
+	    		displayMethod = "flex";
+	    	}
+	    	else {
+	    		displayMethod = "grid";
+	    	}
+	    }
+
+	    function toggleVis(set){
+	    	console.log(set);
+
+	    	const section = document.getElementById("set" + set.toString()).parentElement.children[2];
+	    	if (section.style.display === "none") {
+	    		section.style.display = displayMethod;
+	    	}
+	    	else {
+	    		section.style.display = "none";
+	    	}
+	    }
+
+	    function toggleCard(card) {
+	    	
+	    	if (cards.includes(card)) {
+	    		const index = cards.indexOf(card);
+	    		cards.splice(index, 1);
+
+	    		const n = document.getElementById(card);
+
+	    		let siblings = s => [...s.parentElement.children].filter(c=>c!=s);
+	    		let no_more_in_set = true;
+
+	    		for (let s of siblings(n)) {
+	    			if (cards.includes(parseInt(s.id))) {
+	    				no_more_in_set = false;
+	    				break;
+	    			}
+	    		}
+
+	    		if (no_more_in_set) {
+	    			const set = parseInt(document.getElementById(card).parentElement.parentElement.children[0].id.slice(3));
+
+	    			const index = sets.indexOf(set);
+	    			sets.splice(index, 1);
+	    		}
+	    	}
+	    	else {
+	    		cards.push(card)
+
+				const set = parseInt(document.getElementById(card).parentElement.parentElement.children[0].id.slice(3));
+	    		
+	    		if (!sets.includes(set)) {
+	    			sets.push(set);
+	    		}
+	    	}
+	    }
+
+	    function toggleSet(set) {
+	    	if (sets.includes(set)) {
+	    		const index = sets.indexOf(set);
+	    		sets.splice(index, 1);
+
+	    		const card_divs = document.getElementById("set" + set.toString()).parentElement.children[2].children;
+
+	    		for (let card_div of card_divs) {
+    				const card = parseInt(card_div.id);
+
+    				if (cards.includes(card)) {
+			    		const index = cards.indexOf(card);
+			    		cards.splice(index, 1);
+	    			}
+	    		}
+    		}
+    		else {
+    			sets.push(set);
+
+    			const card_divs = document.getElementById("set" + set.toString()).parentElement.children[2].children;
+
+	    		for (let card_div of card_divs) {
+    				const card = parseInt(card_div.id);
+
+    				if (!cards.includes(card)) {
+			    		cards.push(card);
+	    			}
+	    		}
+    		}
+	    }
+
+	    function getData() {
+	    	let d = document.getElementById("data");
+	    	d.value = JSON.stringify({user_name: user_name, sets: sets, cards: cards});
+	    }
+	</script>
+{% endblock %}

@@ -32,4 +32,20 @@
 	{% endfor %}
 	<br>
 	<hr>
+
+	<script>
+		window.onload = setup();
+
+		function setup() {
+	    	let sections = document.getElementsByClassName("cards");
+	    	let length = sections.length;
+	    	let style = window.getComputedStyle(sections[0]);
+	    	if (style.display == "flex!important" || style.display == "flex") {
+	    		console.log("flexing on the haters")
+	    		for (let i = length - 1; i >= 0; i--) {
+	    			sections[i].classList.replace("cards", "portrait_cards");
+	    		}
+	    	}
+	    }
+	</script>
 {% endblock %}
