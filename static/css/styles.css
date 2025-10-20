@@ -9,6 +9,12 @@
 	text-align: center;
 }
 
+.subtitle {
+	font-weight: normal;
+	font-size: 24px;
+	text-align: center;
+}
+
 .button {
 	margin: auto;
 	display: flex;
@@ -31,6 +37,7 @@
 
 body {
 	background-color: bisque;
+	margin: 0px;
 }
 
 p {
@@ -47,12 +54,20 @@ hr {
 	width: 100%;
 }
 
+header {
+	position: sticky;
+	top: 0;
+	background-color: bisque;
+	width: 100vw;
+}
+
 nav {
 	min-width: 320px;
 	max-width: 25%;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
+	margin: 8px;
 }
 
 nav > a:link, a:visited, a:active {
@@ -76,6 +91,13 @@ ul {
 	:root {
 		--card_front: 1em;
 		--card_back: 0.83em;
+	}
+
+	header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: bisque;
 	}
 
 	nav {
@@ -127,6 +149,8 @@ body {
 
 #meat {
 	height: 90%;
+	display: flex;
+	flex-direction: column;
 }
 
 footer {
@@ -444,6 +468,32 @@ section.display > ul#scoreboard {
 		display: grid;
 		grid-template-columns: 100%;
 	}
+}
+
+.video_background {
+	position: sticky;
+	top: 0;
+	width: 110vw;
+	height: 100vh;
+	overflow: hidden;
+	z-index: -1;
+}
+
+.video_background video {
+	width: 100%;
+	height: 120%;
+	object-fit: cover;
+}
+
+.in_front {
+	position: relative;
+	top: 0vh;
+	z-index: 1;
+	overflow-y: auto;
+	padding: 20px;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 }
 
 .delete {

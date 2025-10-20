@@ -10,38 +10,40 @@
 	</h2>
 	<hr>
 	<br>
-	{% for set in sets %}
-		<section class="set">
-			<p id="set{{set.id}}" class="set_link" href="{{ url_for('get_set', set_id=set.id) }}" onclick="toggleSet({{set.id}})">
-				SET: {{ set.name }}
-			</p>
-			<button id="btn{{set.id}}" onclick="toggleVis({{set.id}})">Toggle Visibility</button>
-			<section class="cards" style="display: none">
-				{% for card in set.cards %}
-					{% if loop.index%2 == 0 %}
-						<div id="{{card.id}}" onclick="toggleCard({{card.id}})" class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
-							<p href="{{ url_for('get_card', card_id=card.id) }}">
-								{% import "macros/card.html" as card_macro %}
-									{{ card_macro.card(card) }}
-							</p>
-						</div>
-					{% else %}
-						<div id="{{card.id}}" onclick="toggleCard({{card.id}})" class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
-							<p href="{{ url_for('get_card', card_id=card.id) }}">
-								{% import "macros/card.html" as card_macro %}
-									{{ card_macro.card(card) }}
-							</p>
-						</div>
-					{% endif %}
-				{% endfor %}
+	<section id="meat">
+		{% for set in sets %}
+			<section class="set">
+				<p id="set{{set.id}}" class="set_link" href="{{ url_for('get_set', set_id=set.id) }}" onclick="toggleSet({{set.id}})">
+					SET: {{ set.name }}
+				</p>
+				<button id="btn{{set.id}}" onclick="toggleVis({{set.id}})">Toggle Visibility</button>
+				<section class="cards" style="display: none">
+					{% for card in set.cards %}
+						{% if loop.index%2 == 0 %}
+							<div id="{{card.id}}" onclick="toggleCard({{card.id}})" class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+								<p href="{{ url_for('get_card', card_id=card.id) }}">
+									{% import "macros/card.html" as card_macro %}
+										{{ card_macro.card(card) }}
+								</p>
+							</div>
+						{% else %}
+							<div id="{{card.id}}" onclick="toggleCard({{card.id}})" class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+								<p href="{{ url_for('get_card', card_id=card.id) }}">
+									{% import "macros/card.html" as card_macro %}
+										{{ card_macro.card(card) }}
+								</p>
+							</div>
+						{% endif %}
+					{% endfor %}
+				</section>
 			</section>
+		{% endfor %}
+		<section class="form">
+			<form action="/game/start" method="post">
+				<input id="data" type="text" name="data" value="" style="display: none">
+				<input type="submit" name="Start Game" onclick="getData()">
+			</form>
 		</section>
-	{% endfor %}
-	<section class="form">
-		<form action="/game/start" method="post">
-			<input id="data" type="text" name="data" value="" style="display: none">
-			<input type="submit" name="Start Game" onclick="getData()">
-		</form>
 	</section>
 
 	<script>

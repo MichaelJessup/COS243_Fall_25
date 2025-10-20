@@ -8,11 +8,14 @@
 		<h1 class="title">Please log in:</h1>
 		<hr>
 		<br>
-		<section id="login">
-		    <form id="form" method="post">
-		        <p>Username: </p> <input id="user_name" type="text" name="user_name" placeholder="Jeffe Jefferson III" required maxlength="16">
-				<input type="submit" value="Submit">
-		    </form>
+		<section id="meat">
+			<section id="login">
+			    <form id="form" method="post">
+			        <p>Username: </p> <input id="user_name" type="text" name="user_name" placeholder="Jeffe Jefferson III" required maxlength="16">
+					<input type="submit" value="Submit">
+			    </form>
+			</section>
+		</section>
 		<br>
 		<hr>
 
@@ -49,23 +52,25 @@
 		<h1 id="greet_user" class="title">Hello {{user_name}}</h1>
 		<hr>
 		<br>
-		<section id="card" style="display: none;">
-			<div class="card">
-				<h2 id="question">front</h2>
-				<h3 id="answer" style="display: none;">back</h3>
-			</div>
-		</section>
-		<section class="chat">
-		    <ul id="messages"></ul>
-		    <form action="/game" onsubmit="sendMessage(event)">
-	        	<textarea id="messageText" rows=1
-	        	placeholder="type /start to begin and /end to close game session"
-	        	onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
-		        <button>Send!</button>
-		    </form>
-		</section>
-		<section class="display">
-			<ul id="scoreboard"></ul>
+		<section id="meat">
+			<section id="card" style="display: none;">
+				<div class="card">
+					<h2 id="question">front</h2>
+					<h3 id="answer" style="display: none;">back</h3>
+				</div>
+			</section>
+			<section class="chat">
+			    <ul id="messages"></ul>
+			    <form action="/game" onsubmit="sendMessage(event)">
+		        	<textarea id="messageText" rows=1
+		        	placeholder="type /start to begin and /end to close game session"
+		        	onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+			        <button>Send!</button>
+			    </form>
+			</section>
+			<section class="display">
+				<ul id="scoreboard"></ul>
+			</section>
 		</section>
 		{% for set in sets %}
 			<section class="hidden_set" style="display: none">

@@ -5,25 +5,28 @@
 {% endblock %}
 {% block content %}
 	<h1 class="title">Flashcard</h1>
-	<hr>
-	<br>
-	<section class="cards">
-		{% import "macros/card.html" as card_macro %}
-		{% for card in cards %}
-			{% if loop.index%2 == 0 %}
-				<div class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
-					<a href="cards/{{card.id}}">
-						{{ card_macro.card(card) }}
-					</a>
-				</div>
-			{% else %}
-				<div class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
-					<a href="cards/{{card.id}}">
-						{{ card_macro.card(card) }}
-					</a>
-				</div>
-			{% endif %}
-		{% endfor %}
+	<section class="video_background">
+		<video autoplay loop muted playsinline><source src="../static/videos/background.mp4" type="video/mp4"></video>
+	</section>
+	<section class="in_front">
+		<section class="cards">
+			{% import "macros/card.html" as card_macro %}
+			{% for card in cards %}
+				{% if loop.index%2 == 0 %}
+					<div class="one" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+						<a href="cards/{{card.id}}">
+							{{ card_macro.card(card) }}
+						</a>
+					</div>
+				{% else %}
+					<div class="two" style="grid-row : {{ (loop.index - loop.index/2 | round(0, 'floor')) | int}}">
+						<a href="cards/{{card.id}}">
+							{{ card_macro.card(card) }}
+						</a>
+					</div>
+				{% endif %}
+			{% endfor %}
+		</section>
 	</section>
 	<br>
 	<hr>
